@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte de Inventario | MYT Salud IPS</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="img/logo_myt.png" alt="MYT Salud IPS" />
+      <h1>Reporte de Inventario</h1>
+    </header>
+
+    <button onclick="generarPDF('Reporte de Inventario', 'tablaInventario')">Exportar PDF</button>
+    <br><br>
+
+    <table id="tablaInventario">
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th>Unidad Medida</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable"></script>
+  <script src="js/exportar_pdf.js"></script>
+  <script src="js/reportes.js"></script>
+</body>
+</html>

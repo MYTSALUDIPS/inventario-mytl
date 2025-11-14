@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Auditoría · MYT</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div><b>MYT – AUDITORÍA</b></div>
+  <div><span id="userName"></span> | <a href="#" onclick="logout()">Cerrar sesión</a></div>
+</header>
+
+<nav>
+  <button class="tab" onclick="location.href='kardex.html'">KARDEX</button>
+  <button class="tab" onclick="location.href='maestra.html'">MAESTRA</button>
+  <button class="tab" onclick="location.href='usuarios.html'">USUARIOS</button>
+  <button class="tab" onclick="location.href='pedidos.html'">PEDIDOS</button>
+  <button class="tab active">AUDITORÍA</button>
+</nav>
+
+<main>
+  <div class="card">
+    <h3>Movimientos</h3>
+    <table id="tblMovs">
+      <thead>
+        <tr>
+          <th>ID</th><th>Fecha</th><th>Usuario</th><th>Producto</th><th>Ref</th>
+          <th>Mov</th><th>Cant</th><th>Costo</th><th>IVA</th><th>V. IVA</th><th>Total</th>
+          <th>Lote</th><th>Vence</th><th>Semáforo</th>
+          <th>Municipio</th><th>Sede</th><th>Ubicación</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script type="module" src="js/auditoria.js"></script>
+<script type="module" src="js/guard.js"></script>
+</body>
+</html>

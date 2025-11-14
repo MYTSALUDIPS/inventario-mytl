@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte Consolidado - MYT Salud IPS</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Reporte Consolidado - MYT Salud IPS</h1>
+  </header>
+
+  <nav>
+    <a href="menu.html">Volver al Menú</a>
+    <a href="reportes.html">Reporte Kardex</a>
+    <a href="reportes_pedidos.html">Reporte Pedidos</a>
+  </nav>
+
+  <div class="container">
+    <h2>Filtros del Reporte</h2>
+    <div class="filters">
+      <label>Desde:</label>
+      <input type="date" id="desde" />
+      <label>Hasta:</label>
+      <input type="date" id="hasta" />
+      <button id="btnGenerar">Generar Consolidado</button>
+      <button id="btnExcel">Exportar Excel</button>
+      <button id="btnPDF">Exportar PDF</button>
+    </div>
+
+    <section>
+      <h2>Kardex</h2>
+      <table id="tablaKardex">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+            <th>Responsable</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Pedidos</h2>
+      <table id="tablaPedidos">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Solicitante</th>
+            <th>Destino</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/reportes_consolidado.js"></script>
+</body>
+</html>

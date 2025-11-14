@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KARDEX DE PRODUCTOS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    body { background-color: #0b1724; color: #00b4ff; font-size: 14px; }
+    table { color: white; font-size: 13px; }
+    th, td { text-align: center; vertical-align: middle; }
+    .btn-guardar { background-color: #00b4ff; color: white; border: none; }
+    .btn-limpiar { background-color: #f0ad4e; color: white; border: none; }
+    .btn-eliminar { background-color: #dc3545; color: white; border: none; }
+    .semaforo { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
+    .verde { background-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+    .amarillo { background-color: #ffff00; box-shadow: 0 0 10px #ffff00; }
+    .naranja { background-color: #ff8000; box-shadow: 0 0 10px #ff8000; }
+    .rojo { background-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background-color: #cfe2ff;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body class="p-4">
+
+  <!-- Botón menú -->
+  <div class="d-flex justify-content-start mb-3">
+    <button class="btn btn-sm btn-outline-info" onclick="window.location.href='menu.html'">
+      🏠 Menú
+    </button>
+  </div>
+
+  <h3 class="text-center mb-4 text-info">
+    <img src="https://cdn-icons-png.flaticon.com/512/3844/3844767.png" width="30">
+    KARDEX DE PRODUCTOS
+  </h3>
+
+  <!-- ======== FORMULARIO PRINCIPAL ======== -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-4">
+      <select id="productoSelect" class="form-select">
+        <option value="">-- Selecciona un producto --</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select id="tipoMovimiento" class="form-select">
+        <option value="">-- Tipo de movimiento --</option>
+        <option value="Entrada">Entrada</option>
+        <option value="Salida">Salida</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <input id="cantidad" type="number" min="1" placeholder="Cantidad" class="form-control" oninput="calcIVA()">
+    </div>
+
+    <div class="col-md-2">
+      <input id="costo" type="number" min="1" step="0.01" placeholder="Costo unitario" class="form-control" oninput="calcIVA()">
+    </div>
+
+    <div class="col-md-2">
+      <select id="iva" class="form-select" onchange="calcIVA()">
+        <option value="">-- IVA % --</option>
+        <option value="0">0%</option>
+        <option value="5">5%</option>
+        <option value="19">19%</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-2">
+      <input id="valorIva" class="form-control" placeholder="Valor IVA" readonly>
+    </div>
+    <div class="col-md-2">
+      <input id="valorTotal" class="form-control" placeholder="Valor Total" readonly>
+    </div>
+    <div class="col-md-2">
+      <input id="registroInvima" class="form-control" placeholder="Registro Invima (opcional)">
+    </div>
+    <div class="col-md-2">
+      <input id="lote" class="form-control" placeholder="Lote">
+    </div>
+    <div class="col-md-2">
+      <input id="vencimiento" type="date" class="form-control">
+    </div>
+    <div class="col-md-2">
+      <select id="marcaLab" class="form-select">
+        <option value="">-- Marca / Laboratorio --</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <select id="proveedor" class="form-select">
+        <option value="">-- Proveedor --</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <input id="nit" class="form-control" placeholder="NIT proveedor" readonly>
+    </div>
+
+    <div class="col-md-2">
+      <input id="factura" class="form-control" placeholder="No. Factura (opcional)">
+    </div>
+
+    <div class="col-md-2">
+      <select id="estado" class="form-select">
+        <option value="">-- Estado sanitario --</option>
+        <option>VIGENTE</option>
+        <option>NO APLICA</option>
+        <option>VENCIDO</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select id="clasificacion" class="form-select">
+        <option value="">-- Clasificación --</option>
+        <option>I</option>
+        <option>II</option>
+        <option>III</option>
+        <option>NO APLICA</option>
+      </select>
+    </div>
+
+    <div class="col-md-1">
+      <select id="temperatura" class="form-select">
+        <option value="">-- Temp --</option>
+        <option>15 - 25 °C</option>
+        <option>9 - 14 °C</option>
+        <option>2 - 8 °C</option>
+        <option>NO APLICA</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-2">
+      <select id="vidaUtil" class="form-select">
+        <option value="">-- Vida útil --</option>
+        <option>6 MESES</option>
+        <option>3 - 6 MESES</option>
+        <option>6 - 24 MESES</option>
+        <option>2 AÑOS</option>
+        <option>5 AÑOS</option>
+        <option>NO APLICA</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select id="municipio" class="form-select">
+        <option value="">-- Municipio --</option>
+        <option>ARAUCA</option>
+        <option>SARAVENA</option>
+        <option>TAME</option>
+        <option>ARAUQUITA</option>
+        <option>FORTUL</option>
+        <option>PUERTO RONDÓN</option>
+        <option>CRAVO NORTE</option>
+        <option>PUERTO JORDÁN</option>
+        <option>CUBARÁ</option>
+        <option>LA ESMERALDA</option>
+        <option>YOPAL</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <select id="sede" class="form-select">
+        <option value="">-- Sede --</option>
+        <option>SEDE PRINCIPAL</option>
+        <option>SEDE B</option>
+        <option>SEDE C</option>
+        <option>SEDE D</option>
+        <option>SEDE ESPECIALIDADES MÉDICAS</option>
+        <option>SEDE ESPECIALIDADES MÉDICAS ADMINISTRATIVA</option>
+        <option>MANTENIMIENTO HOSPITALARIO</option>
+        <option>FARMACIA PUNTO 16</option>
+        <option>FARMACIA PUNTO 75</option>
+        <option>FARMACIA PUNTO 8</option>
+        <option>FARMACIA SUBCIDIADO TAME</option>
+        <option>FARMACIA SANITAS TAME</option>
+        <option>DISPENSACIÓN FORTUL</option>
+        <option>DISPENSACIÓN CUBARÁ</option>
+        <option>DISPENSACIÓN PUERTO RONDÓN</option>
+        <option>DISPENSACIÓN CRAVO NORTE</option>
+        <option>DISPENSACIÓN LA ESMERALDA</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <select id="ubicacion" class="form-select">
+        <option value="">-- Ubicación --</option>
+        <option>AMBULANCIAS</option>
+        <option>ATENCIÓN DOMICILIARIA</option>
+        <option>LABORATORIO</option>
+        <option>ODONTOLOGÍA</option>
+        <option>SIAU LÍNEA DE FRENTE</option>
+        <option>SIAU</option>
+        <option>ARCHIVOS</option>
+        <option>PROCEDIMIENTOS</option>
+        <option>TALENTO HUMANO</option>
+        <option>FINANCIERA</option>
+        <option>FACTURACIÓN</option>
+        <option>RAYOS X</option>
+        <option>ECOGRAFÍAS</option>
+        <option>SISTEMAS</option>
+        <option>BIOMÉDICA</option>
+        <option>ALTO COSTO</option>
+        <option>SERVICIOS GENERALES</option>
+        <option>VACUNACIÓN</option>
+        <option>SST</option>
+        <option>AMBIENTE FÍSICO</option>
+        <option>CONSULTORIO</option>
+        <option>CONSULTORIOS PYM</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <input id="usuario" class="form-control" placeholder="Usuario" readonly>
+    </div>
+
+    <div class="col-md-3">
+      <button id="guardarBtn" class="btn btn-guardar w-100">💾 Guardar</button>
+    </div>
+
+    <div class="col-md-3">
+      <button id="limpiarBtn" class="btn btn-limpiar w-100">🧹 Limpiar</button>
+    </div>
+
+    <div class="col-md-3">
+      <button id="excelBtn" class="btn btn-success w-100">📥 Descargar Excel</button>
+    </div>
+  </div>
+
+  <!-- ======= FILTROS SOBRE LA TABLA (opción A) ======= -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <input id="filtroNombre" class="form-control" placeholder="Filtrar por nombre comercial">
+    </div>
+    <div class="col-md-2">
+      <input id="filtroLote" class="form-control" placeholder="Filtrar por lote">
+    </div>
+    <div class="col-md-2">
+      <input id="filtroProveedor" class="form-control" placeholder="Filtrar por proveedor">
+    </div>
+    <div class="col-md-2">
+      <input id="filtroUsuario" class="form-control" placeholder="Filtrar por usuario">
+    </div>
+    <div class="col-md-1">
+      <input id="filtroFechaDesde" type="date" class="form-control" title="Desde fecha">
+    </div>
+    <div class="col-md-1">
+      <input id="filtroFechaHasta" type="date" class="form-control" title="Hasta fecha">
+    </div>
+    <div class="col-md-1">
+      <button id="btnAplicarFiltros" class="btn btn-outline-info w-100">Filtrar</button>
+    </div>
+  </div>
+
+  <!-- ======= TABLA ======= -->
+  <div class="table-responsive">
+    <table id="tablaKardex" class="table table-bordered table-sm align-middle">
+      <thead class="table-primary text-dark">
+        <tr>
+          <th>#</th>
+          <th>IdDescripción</th>
+          <th>Nombre Comercial</th>
+          <th>Tipo</th>
+          <th>Concentración</th>
+          <th>Unidad</th>
+          <th>Forma Farmacéutica</th>
+          <th>Principio Activo</th>
+          <th>Cantidad</th>
+          <th>Costo Unitario</th>
+          <th>IVA %</th>
+          <th>Valor IVA</th>
+          <th>Total</th>
+          <th>Ref PLU</th>
+          <th>Invima</th>
+          <th>Lote</th>
+          <th>Vence</th>
+          <th>Semáforo</th>
+          <th>Días</th>
+          <th>Entrada</th>
+          <th>Salida</th>
+          <th>Stock</th>
+          <th>Marca</th>
+          <th>Proveedor</th>
+          <th>NIT</th>
+          <th>Factura</th>
+          <th>Estado</th>
+          <th>Clasificación</th>
+          <th>Temp</th>
+          <th>Vida útil</th>
+          <th>Municipio</th>
+          <th>Sede</th>
+          <th>Ubicación</th>
+          <th>Usuario</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+/* ================= SESIÓN ================= */
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+if (!usuario) {
+  window.location.href = "login.html";
+} else {
+  document.getElementById("usuario").value = usuario.correo;
+}
+
+const contenedorSesion = document.createElement("div");
+contenedorSesion.style.cssText = `
+  position: fixed; top: 10px; right: 20px; z-index: 1000;
+  display: flex; align-items: center; gap: 10px;
+`;
+contenedorSesion.innerHTML = `
+  <span style="color:#00b4ff; font-weight:bold; font-size:14px;">
+    👤 ${usuario.nombre || usuario.correo} (${usuario.rol || "sin rol"})
+  </span>
+  <button id="logoutBtn" class="btn btn-danger btn-sm">🚪 Cerrar sesión</button>
+`;
+document.body.appendChild(contenedorSesion);
+
+document.getElementById("logoutBtn").onclick = () => {
+  if (confirm("¿Deseas cerrar sesión?")) {
+    localStorage.removeItem("usuario");
+    window.location.href = "login.html";
+  }
+};
+
+const API = "http://localhost:4000/api/kardex";
+
+/* ========== Catálogos ========== */
+const proveedores = {
+  "ALFA LATINA SAS": "901001978-0",
+  "OPERANDO MEDICOS & QUIRURGICOS S.A.S.": "900319471-1",
+  "LOPEZ DE CARVAJAL GLORIA STELLA": "37235051-1",
+  "DISTRIBUCIONES JM MEDICAL S.A.S.": "901337513-2",
+  "GUERRERO DISTRIBUCIONES Y SERVICIOS SAS ZOMAC": "901096242-6",
+  "DISTRIBUIDORA BARAQUILLITAS S.A.S ZESE": "901215644-5",
+  "BODEGA Y SUPERMERCADO EL DESCUENTO S.A.S.": "901352007-1",
+  "LA MUELA S.A.S": "804009440-5",
+  "ALFAMEDICAL JE S.A.S.": "900776657-3",
+  "PICO MARIN TITO": "13703026-6",
+  "INVERSIONES Y NEGOCIOS DEL ORIENTE S.A.S": "800172138-7",
+  "IMPULMEDICOS SAS": "901314131-9",
+  "HERMES MEDICAL": "901237390-4",
+  "BEHNER": "900057926-5",
+  "LABCARE DE COLOMBIA": "830.056.202-3"
+};
+
+const marcas = [
+  "3M","ABBOTT","ABBVIE","ALCON","ASTRAZENECA","AMAREY","BAYER","BOEHRINGER",
+  "CHALVER","CIPLA","PFIZER","TECNOFARMA","ROCHE","NOVARTIS","GENFAR",
+  "MK","SANOFI","MEDIFARMA","BAXTER","BIOPAS"
+];
+
+function fillSelectOptions(sel, arr) {
+  const first = sel.innerHTML;
+  sel.innerHTML = first;
+  arr.forEach(v => sel.innerHTML += `<option>${v}</option>`);
+}
+
+function cargarCatalogos() {
+  fillSelectOptions(document.getElementById("marcaLab"), marcas);
+  fillSelectOptions(document.getElementById("proveedor"), Object.keys(proveedores));
+}
+
+document.getElementById("proveedor").addEventListener("change", e => {
+  document.getElementById("nit").value = proveedores[e.target.value] || "";
+});
+
+/* ========== Productos ========== */
+async function cargarProductos() {
+  try {
+    const res = await fetch(`${API}/productos`);
+    if (!res.ok) throw new Error("Error productos");
+    const productos = await res.json();
+    const sel = document.getElementById("productoSelect");
+    sel.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+
+    productos.forEach(p => {
+      sel.innerHTML += `
+        <option value="${p.id_descripcion}"
+          data-nombre="${p.nombre_comercial}"
+          data-tipo="${p.tipo_productos}"
+          data-concentracion="${p.concentracion}"
+          data-unidad="${p.unidad_medida}"
+          data-forma="${p.forma_farmaceutica}"
+          data-principio="${p.principio_activo}"
+          data-ref="${p.ref_plu}">
+          ${p.nombre_comercial}
+        </option>`;
+    });
+  } catch (e) {
+    console.error("Error cargando productos:", e);
+  }
+}
+
+/* ========== IVA ========== */
+function calcIVA() {
+  const cant = +document.getElementById("cantidad").value || 0;
+  const costo = +document.getElementById("costo").value || 0;
+  const iva = +document.getElementById("iva").value || 0;
+  const base = cant * costo;
+  const vIva = base * iva / 100;
+  document.getElementById("valorIva").value = vIva.toFixed(2);
+  document.getElementById("valorTotal").value = (base + vIva).toFixed(2);
+}
+
+/* ========== VALIDACIONES ========== */
+function valorVacio(el) {
+  if (!el) return true;
+  const v = (el.value || "").trim();
+  return v === "" || v.startsWith("--");
+}
+
+function validarCampos() {
+  const campos = [
+    ["productoSelect","Selecciona un producto"],
+    ["tipoMovimiento","Selecciona el tipo de movimiento"],
+    ["cantidad","Ingresa la cantidad"],
+    ["costo","Ingresa el costo unitario"],
+    ["iva","Selecciona el IVA"],
+    ["lote","Ingresa el lote"],
+    ["marcaLab","Selecciona la marca / laboratorio"],
+    ["proveedor","Selecciona el proveedor"],
+    ["estado","Selecciona el estado sanitario"],
+    ["clasificacion","Selecciona la clasificación"],
+    ["temperatura","Selecciona la temperatura"],
+    ["vidaUtil","Selecciona la vida útil"],
+    ["municipio","Selecciona el municipio"],
+    ["sede","Selecciona la sede"],
+    ["ubicacion","Selecciona la ubicación"]
+  ];
+
+  for (const [id, msg] of campos) {
+    const el = document.getElementById(id);
+    if (valorVacio(el)) {
+      alert("⚠️ " + msg);
+      el.focus();
+      return false;
+    }
+  }
+
+  // Fecha de vencimiento puede ir vacía (excepción)
+  return true;
+}
+
+/* ========== Validar stock en SALIDA ========== */
+async function validarStockSalida(idDescripcion, lote, cantidadSalida) {
+  try {
+    const res = await fetch(`${API}/ultimo-registro?idDescripcion=${encodeURIComponent(idDescripcion)}&lote=${encodeURIComponent(lote)}`);
+    const { data } = await res.json();
+    if (!data) return { ok: false, stock: 0 };
+    const stock = Number(data.Stock || data.stock || 0);
+    if (cantidadSalida > stock) return { ok: false, stock };
+    return { ok: true, stock };
+  } catch (e) {
+    console.error("Error validando stock:", e);
+    return { ok: true }; // para no bloquear si falla la conexión
+  }
+}
+
+/* ========== Guardar movimiento ========== */
+async function guardarMovimiento() {
+  if (!validarCampos()) return;
+
+  const sel = document.querySelector("#productoSelect option:checked");
+  if (!sel || !sel.value) {
+    alert("Selecciona un producto.");
+    return;
+  }
+
+  const movimiento = document.getElementById("tipoMovimiento").value;
+  const cantidad = Number(document.getElementById("cantidad").value || 0);
+  const lote = (document.getElementById("lote").value || "").trim();
+  const idDescripcion = sel.value;
+
+  if (movimiento === "Salida") {
+    const ver = await validarStockSalida(idDescripcion, lote, cantidad);
+    if (!ver.ok) {
+      alert(`❌ No hay suficiente stock en este lote.\nDisponible: ${ver.stock}`);
+      return;
+    }
+  }
+
+  const d = {
+    id_descripcion: sel.value,
+    nombre_comercial: sel.dataset.nombre || "",
+    tipo_productos: sel.dataset.tipo || "",
+    concentracion: sel.dataset.concentracion || "",
+    unidad_medida: sel.dataset.unidad || "",
+    forma_farmaceutica: sel.dataset.forma || "",
+    principio_activo: sel.dataset.principio || "",
+    ref_plu: sel.dataset.ref || "",
+
+    movimiento,
+    cantidad,
+    costo_unitario: document.getElementById("costo").value || 0,
+    iva: document.getElementById("iva").value || 0,
+    valor_iva: document.getElementById("valorIva").value || 0,
+    valor_total: document.getElementById("valorTotal").value || 0,
+
+    registro_invima: document.getElementById("registroInvima").value || "",
+    lote,
+    fecha_vencimiento: document.getElementById("vencimiento").value || null,
+
+    marca_laboratorio: document.getElementById("marcaLab").value || "",
+    proveedor: document.getElementById("proveedor").value || "",
+    nit: document.getElementById("nit").value || "",
+    no_factura: document.getElementById("factura").value || "",
+    estado_sanitario: document.getElementById("estado").value || "",
+    clasificacion_dispositivo: document.getElementById("clasificacion").value || "",
+    temperatura_almacen: document.getElementById("temperatura").value || "",
+    vida_util: document.getElementById("vidaUtil").value || "",
+    municipio: document.getElementById("municipio").value || "",
+    sede: document.getElementById("sede").value || "",
+    ubicacion: document.getElementById("ubicacion").value || "",
+
+    usuario: usuario.correo
+  };
+
+  try {
+    const res = await fetch(`${API}/movimiento`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(d)
+    });
+    const msg = await res.json();
+    alert(msg.message || "Movimiento registrado.");
+    await cargarRegistros();
+  } catch (e) {
+    console.error(e);
+    alert("Error al registrar movimiento");
+  }
+}
+
+/* ========== Autorrelleno por lote (Salida) ========== */
+async function tryAutofillSalida() {
+  const mov = document.getElementById("tipoMovimiento").value;
+  const lote = (document.getElementById("lote").value || "").trim();
+  const sel = document.querySelector("#productoSelect option:checked");
+  if (mov !== "Salida" || !lote || !sel || !sel.value) return;
+
+  try {
+    const url = `${API}/ultimo-registro?idDescripcion=${encodeURIComponent(sel.value)}&lote=${encodeURIComponent(lote)}`;
+    const res = await fetch(url);
+    const { data } = await res.json();
+    if (!data) return;
+
+    document.getElementById("marcaLab").value = data.Marca_Laboratorio || "";
+    document.getElementById("proveedor").value = data.Proveedor || "";
+    document.getElementById("nit").value = data.Nit || "";
+    document.getElementById("estado").value = data.Estado_Sanitario || "";
+    document.getElementById("clasificacion").value = data.Clasificacion_Dispositivo || "";
+    document.getElementById("temperatura").value = data.Temperatura_Almacen || "";
+    document.getElementById("vidaUtil").value = data.Vida_Util || "";
+    document.getElementById("municipio").value = data.Municipio || "";
+    document.getElementById("sede").value = data.Sede || "";
+    document.getElementById("ubicacion").value = data.Ubicacion || "";
+
+    // costeo
+    if (data.Costo_Unitario != null) {
+      document.getElementById("costo").value = data.Costo_Unitario;
+    }
+    if (data.Iva != null) {
+      document.getElementById("iva").value = data.Iva;
+    }
+    calcIVA();
+  } catch (e) {
+    console.error("Autorrelleno salida:", e);
+  }
+}
+
+document.getElementById("tipoMovimiento").addEventListener("change", tryAutofillSalida);
+document.getElementById("lote").addEventListener("blur", tryAutofillSalida);
+
+/* ========== Semáforo ========== */
+function colorSemaforo(icono) {
+  switch (icono) {
+    case "🟢": return "verde";
+    case "🟡": return "amarillo";
+    case "🟠": return "naranja";
+    case "🔴": return "rojo";
+    default: return "";
+  }
+}
+
+let _registrosCache = [];
+
+/* ========== Pintar tabla ========== */
+function pintarTabla(filas) {
+  const tbody = document.querySelector("#tablaKardex tbody");
+  tbody.innerHTML = "";
+  filas.forEach((r, i) => {
+    const sem = r.Semaforizacion || r.semaforizacion || "";
+    const color = colorSemaforo(sem);
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${r.IdDescripcion || r.id_descripcion || ""}</td>
+        <td>${r.Nombre_Comercial || r.nombre_comercial || ""}</td>
+        <td>${r.Tipo_Productos || r.tipo_productos || ""}</td>
+        <td>${r.Concentracion || r.concentracion || ""}</td>
+        <td>${r.Unidad_Medida || r.unidad_medida || ""}</td>
+        <td>${r.Forma_Farmaceutica || r.forma_farmaceutica || ""}</td>
+        <td>${r.Principio_Activo || r.principio_activo || ""}</td>
+        <td>${r.Cantidad || r.cantidad || 0}</td>
+        <td>${r.Costo_Unitario || r.costo_unitario || 0}</td>
+        <td>${r.Iva || r.iva || 0}</td>
+        <td>${r.Valor_Iva || r.valor_iva || 0}</td>
+        <td>${r.Valor_Total || r.valor_total || 0}</td>
+        <td>${r.Ref_Plu || r.ref_plu || ""}</td>
+        <td>${r.Registro_Invima || r.registro_invima || ""}</td>
+        <td>${r.Lote || r.lote || ""}</td>
+        <td>${r.Fecha_Vencimiento || r.fecha_vencimiento || ""}</td>
+        <td><span class="semaforo ${color}"></span></td>
+        <td>${r.Dias_Vencer || r.dias_vencer || 0}</td>
+        <td>${r.Entrada || r.entrada || 0}</td>
+        <td>${r.Salida || r.salida || 0}</td>
+        <td>${r.Stock || r.stock || 0}</td>
+        <td>${r.Marca_Laboratorio || r.marca_laboratorio || ""}</td>
+        <td>${r.Proveedor || r.proveedor || ""}</td>
+        <td>${r.Nit || r.nit || ""}</td>
+        <td>${r.No_Factura || r.no_factura || ""}</td>
+        <td>${r.Estado_Sanitario || r.estado_sanitario || ""}</td>
+        <td>${r.Clasificacion_Dispositivo || r.clasificacion_dispositivo || ""}</td>
+        <td>${r.Temperatura_Almacen || r.temperatura_almacen || ""}</td>
+        <td>${r.Vida_Util || r.vida_util || ""}</td>
+        <td>${r.Municipio || r.municipio || ""}</td>
+        <td>${r.Sede || r.sede || ""}</td>
+        <td>${r.Ubicacion || r.ubicacion || ""}</td>
+        <td>${r.Usuario || r.usuario || ""}</td>
+        <td>
+          <button class="btn btn-eliminar btn-sm" onclick="eliminar(${r.id})">🗑</button>
+        </td>
+      </tr>`;
+  });
+}
+
+/* ========== Cargar registros ========== */
+async function cargarRegistros() {
+  try {
+    const esAdmin = usuario.rol === "admin";
+    const url = esAdmin
+      ? `${API}/registros?limit=1500`
+      : `${API}/registros?usuario=${encodeURIComponent(usuario.correo)}&limit=1500`;
+
+    const res = await fetch(url);
+    const { data } = await res.json();
+    _registrosCache = data || [];
+    pintarTabla(_registrosCache);
+  } catch (e) {
+    console.error("Error cargando registros:", e);
+  }
+}
+
+/* ========== Filtros (opción A) ========== */
+function aplicarFiltros() {
+  const nombreQ = document.getElementById("filtroNombre").value.toLowerCase();
+  const loteQ = document.getElementById("filtroLote").value.toLowerCase();
+  const provQ = document.getElementById("filtroProveedor").value.toLowerCase();
+  const userQ = document.getElementById("filtroUsuario").value.toLowerCase();
+  const fDesde = document.getElementById("filtroFechaDesde").value;
+  const fHasta = document.getElementById("filtroFechaHasta").value;
+
+  const desde = fDesde ? new Date(fDesde) : null;
+  const hasta = fHasta ? new Date(fHasta) : null;
+
+  const filtrados = _registrosCache.filter(r => {
+    const nombre = (r.Nombre_Comercial || r.nombre_comercial || "").toLowerCase();
+    const lote = (r.Lote || r.lote || "").toLowerCase();
+    const proveedor = (r.Proveedor || r.proveedor || "").toLowerCase();
+    const usuarioR = (r.Usuario || r.usuario || "").toLowerCase();
+    const fechaStr = r.Fecha || r.fecha || r.Fecha_Registro || r.fecha_registro || null;
+
+    if (nombreQ && !nombre.includes(nombreQ)) return false;
+    if (loteQ && !lote.includes(loteQ)) return false;
+    if (provQ && !proveedor.includes(provQ)) return false;
+    if (userQ && !usuarioR.includes(userQ)) return false;
+
+    if (desde || hasta) {
+      if (!fechaStr) return false;
+      const fecha = new Date(fechaStr);
+      if (desde && fecha < desde) return false;
+      if (hasta) {
+        const h = new Date(hasta);
+        h.setHours(23, 59, 59, 999);
+        if (fecha > h) return false;
+      }
+    }
+    return true;
+  });
+
+  pintarTabla(filtrados);
+}
+
+document.getElementById("btnAplicarFiltros").addEventListener("click", aplicarFiltros);
+
+/* ========== Eliminar ========== */
+async function eliminar(id) {
+  if (!confirm("¿Eliminar registro?")) return;
+  try {
+    await fetch(`${API}/registro/${id}`, { method: "DELETE" });
+    await cargarRegistros();
+  } catch (e) {
+    alert("Error al eliminar");
+  }
+}
+
+/* ========== Excel ========== */
+document.getElementById("excelBtn").addEventListener("click", () => {
+  const esAdmin = usuario.rol === "admin";
+  const url = esAdmin
+    ? `${API}/export-excel`
+    : `${API}/export-excel?usuario=${encodeURIComponent(usuario.correo)}`;
+  window.location.href = url;
+});
+
+/* ========== Botones ========== */
+document.getElementById("guardarBtn").addEventListener("click", guardarMovimiento);
+document.getElementById("limpiarBtn").addEventListener("click", () => location.reload());
+
+/* ========== INIT ========== */
+cargarCatalogos();
+cargarProductos();
+cargarRegistros();
+</script>
+
+</body>
+</html>

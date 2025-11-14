@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏠 Menú Principal - MYT SALUD IPS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    /* 🌌 Fondo corporativo con logo */
+    body {
+      background: radial-gradient(circle at center, rgba(0,20,40,0.92), rgba(0,10,25,1)),
+                  url("logo_myt.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #00b4ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* 🎇 Contenedor principal */
+    .menu-container {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      box-shadow: 0 0 35px rgba(0, 180, 255, 0.4);
+      padding: 50px 60px;
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.9);
+      animation: fadeIn 1s ease forwards;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ✨ Logo */
+    .menu-container img {
+      width: 120px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 15px #00d5ff);
+      animation: floatLogo 4s ease-in-out infinite;
+    }
+
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* ✍️ Título */
+    h2 {
+      color: #00e0ff;
+      text-shadow: 0 0 12px #00bfff;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 26px;
+    }
+
+    /* 👤 Info usuario */
+    .user-info {
+      color: #00eaff;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 35px;
+      text-shadow: 0 0 8px #00b4ff;
+      animation: slideDown 1.2s ease forwards;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .user-info span {
+      display: block;
+      color: #b2ecff;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+
+    .user-info .rol {
+      font-size: 13px;
+      font-weight: bold;
+      color: #32ff32;
+      margin-top: 3px;
+      text-shadow: 0 0 8px #00ff88;
+    }
+
+    /* 🎛️ Cuadros del menú */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 25px;
+      justify-content: center;
+    }
+
+    .menu-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #00b4ff, #007acc);
+      border: none;
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      border-radius: 18px;
+      padding: 25px 10px;
+      height: 120px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 180, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-btn::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -75%;
+      width: 50%; height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: skewX(-25deg);
+      transition: 0.7s;
+    }
+
+    .menu-btn:hover::after {
+      left: 125%;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 30px rgba(0, 220, 255, 0.6);
+      background: linear-gradient(145deg, #00d5ff, #0094ff);
+    }
+
+    .menu-btn span {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    /* 🔴 Botón cerrar sesión */
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      padding: 8px 14px;
+      transition: 0.3s;
+      box-shadow: 0 0 10px rgba(255, 80, 80, 0.4);
+    }
+
+    .logout-btn:hover {
+      background-color: #ff5050;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 80, 80, 0.8);
+    }
+
+    /* 👣 Footer */
+    footer {
+      position: absolute;
+      bottom: 20px;
+      color: #00cfff;
+      font-size: 0.9rem;
+      text-shadow: 0 0 10px #00e0ff88;
+    }
+
+    /* 🔄 Salida animada */
+    .fade-out {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.6s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="menu-container" id="menuContainer">
+    <img src="logo_myt.jpg" alt="MYT SALUD IPS">
+    <button class="logout-btn" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+
+    <h2>🏥 BIENVENIDO AL SISTEMA DE INVENTARIO</h2>
+
+    <div class="user-info" id="userInfo">
+      <!-- Aquí se muestra el nombre, correo y rol -->
+    </div>
+
+    <!-- 🧭 Cuadros del menú -->
+    <div class="menu-grid" id="botonesMenu">
+      <button class="menu-btn" onclick="ir('maestra.html')">
+        <span>📘</span> Maestra
+      </button>
+      <button class="menu-btn" onclick="ir('kardex.html')">
+        <span>📦</span> Kardex
+      </button>
+      <button class="menu-btn" onclick="ir('pedidos.html')">
+        <span>🧾</span> Pedidos
+      </button>
+      <button class="menu-btn" id="btnUsuarios" onclick="ir('usuarios.html')">
+        <span>👥</span> Usuarios
+      </button>
+    </div>
+  </div>
+
+  <footer>Un valioso respaldo en salud</footer>
+
+  <script>
+    // ✅ Verificar sesión activa
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) window.location.href = "login.html";
+
+    // ✅ Mostrar información del usuario
+    const userInfo = document.getElementById("userInfo");
+    userInfo.innerHTML = `
+      👤 ${usuario.nombre}
+      <span>${usuario.correo}</span>
+      <div class="rol">Rol: ${usuario.rol.toUpperCase()}</div>
+    `;
+
+    // ✅ Ocultar el botón de usuarios si no es admin
+    if (usuario.rol !== "admin") {
+      document.getElementById("btnUsuarios").style.display = "none";
+    }
+
+    // ✅ Agregar botón de Despacho (solo admin o despachador)
+    const botonesMenu = document.getElementById("botonesMenu");
+    if (usuario.rol === "admin" || usuario.rol === "despachador") {
+      const btnDespacho = document.createElement("button");
+      btnDespacho.className = "menu-btn";
+      btnDespacho.innerHTML = "<span>🚚</span> Despachos";
+      btnDespacho.onclick = () => ir('despacho.html');
+      botonesMenu.appendChild(btnDespacho);
+    }
+
+    // 🔴 Cerrar sesión
+    function cerrarSesion() {
+      if (confirm("¿Deseas cerrar sesión?")) {
+        localStorage.removeItem("usuario");
+        fadeOutAndRedirect("login.html");
+      }
+    }
+
+    // 🌐 Navegar con animación
+    function ir(pagina) {
+      fadeOutAndRedirect(pagina);
+    }
+
+    function fadeOutAndRedirect(url) {
+      const box = document.getElementById("menuContainer");
+      box.classList.add("fade-out");
+      setTimeout(() => window.location.href = url, 600);
+    }
+  </script>
+</body>
+</html>

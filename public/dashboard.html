@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | MYT Inventario 2025</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="backdrop">
+<header>
+  <h1>📊 MYT – Dashboard de Inventario</h1>
+  <div class="usuario-box">
+    <span id="usuarioActual"></span>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="kardex.html">Kardex</a>
+    <a href="maestra.html">Maestra</a>
+    <a href="pedidos.html">Pedidos</a>
+    <a href="despacho.html">Despacho</a>
+    <a href="auditoria.html">Auditoría</a>
+    <a href="usuarios.html">Usuarios</a>
+    <a href="backup.html">Backup</a>
+  </nav>
+</header>
+
+<main>
+  <section style="margin:30px auto;width:80%;background:#0d2845;padding:20px;border-radius:15px;">
+    <h2>🔔 Alertas de Vencimiento</h2>
+    <div id="alertaBox" style="margin-top:15px;font-size:18px;"></div>
+    <canvas id="graficoVencimientos" width="400" height="200" style="margin-top:30px;"></canvas>
+  </section>
+</main>
+
+<script src="js/proteccion.js"></script>
+<script>
+async function cargarDashboard() {
+  const res = await fetch("/api/dashboard/vencimientos");
+  const data = await res.json();
+
+  const alerta = document.getElementById("alertaBox");
+  alerta.innerHTML = `
+    <p>📦 Total de productos con fecha de vencimiento: <b>${data.total}</b></p>
+    <p style="color:#d62828;">❌ Vencidos: <b>${data.vencidos}</b></p>
+    <p style="color:#ffd700;">⚠️ Próximos a vencer (≤30 días): <b>${data.proximos}</b></p>
+    <p style="color:#00b341;">✅ En buen estado: <b>${data.normales}</b></p>
+  `;
+
+  const ctx = document.getElementById("graficoVencimientos").getContext("2d");
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Vencidos", "Próximos", "En buen estado"],
+      datasets: [{
+        data: [data.vencidos, data.proximos, data.normales],
+        backgroundColor: ["#d62828", "#ffd700", "#00b341"]
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: "bottom" },
+        title: { display: true, text: "Estado de Vencimientos del Inventario" }
+      }
+    }
+  });
+}
+cargarDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+:root{
+  --bg:#0c0f1b; --panel:#121728; --panel2:#1a2034; --line:#2b3350;
+  --txt:#e8ecf1; --muted:#9fb3c8; --primary:#0aa2ff; --danger:#e34747; --ok:#00b67a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Segoe UI,system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--txt);
+}
+header{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 18px; background:var(--panel); border-bottom:1px solid var(--line);
+}
+nav{display:flex; gap:8px; padding:10px 18px; background:var(--panel2); border-bottom:1px solid var(--line)}
+nav .tab{background:#0e1322; color:#cfe7ff; border:1px solid var(--line); padding:8px 12px; border-radius:8px; cursor:pointer}
+nav .tab.active{background:var(--primary); color:#002244; border-color:transparent}
+main{padding:18px; max-width:1200px; margin-inline:auto}
+h1,h2,h3{color:#7fc9ff; margin:8px 0 14px}
+.card{background:#0f162a; border:1px solid var(--line); border-radius:14px; padding:14px; margin:10px 0}
+.row{display:flex; flex-wrap:wrap; gap:10px}
+input,select,button,textarea{font:inherit}
+input,select,textarea{
+  background:#111a30; color:#fff; border:1px solid #2e3a5e; border-radius:8px; padding:8px 10px; outline:none; min-height:38px
+}
+input[readonly]{opacity:.8}
+button{
+  background:var(--primary); color:#032845; border:none; border-radius:9px; padding:9px 14px; cursor:pointer
+}
+button.secondary{background:#0e1322; color:#cfe7ff; border:1px solid var(--line)}
+button.ok{background:var(--ok); color:#002a1d}
+button.danger{background:var(--danger)}
+table{width:100%; border-collapse:collapse; margin-top:10px}
+th,td{border:1px solid #223; padding:8px; font-size:14px}
+th{background:#121a30; text-align:left}
+.kpi{display:flex; gap:12px; flex-wrap:wrap}
+.kpi .pill{background:#0e1322; border:1px solid var(--line); padding:8px 12px; border-radius:999px; color:#9fd3ff}
+.badge{padding:3px 8px; border-radius:6px; background:#0e1322; border:1px solid var(--line); color:#bfe0ff}
+input[type="file"]{background:transparent; border:none; padding:0}
+hr{border:none; border-top:1px solid var(--line); margin:12px 0}

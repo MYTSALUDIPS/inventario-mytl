@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>📘 MAESTRA DE PRODUCTOS</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  body { background:#08111c; color:#e0f6ff; font-family:Arial, system-ui; text-align:center; }
+  h1 { color:#00aaff; margin-top:16px; }
+  input, select { background:#0f1e2e; color:#fff; border:1px solid #00bfff; border-radius:5px; padding:5px 8px; margin:4px; font-size:13px; }
+  button { background:#00aaff; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; }
+  button:hover { background:#007acc; }
+  .ghost{ background:#0f1e2e; border:1px solid #00bfff; color:#cdeeff } .ghost:hover{ background:#0d1725 }
+  table { width:98%; border-collapse:collapse; margin:20px auto; }
+  th, td { border:1px solid #00bfff; padding:5px; font-size:12px; color:#fff; }
+  th { background:#0f3b66; position:sticky; top:0; }
+  img.thumb{ width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #0f3b66 }
+  .toolbar{ display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:8px }
+</style>
+</head>
+<body>
+
+<!-- 🔹 Verificación de sesión -->
+<script>
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (!usuario) {
+    alert("⚠️ Debes iniciar sesión para acceder al sistema.");
+    window.location.href = "login.html";
+  }
+</script>
+
+<!-- 🔹 Barra superior de navegación -->
+<nav class="navbar navbar-dark" style="background-color:#0b1b2b; box-shadow:0 0 10px #00b4ff88;">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div>
+      <button class="btn btn-sm btn-outline-info me-2" onclick="ir('menu.html')">🏠 Menú</button>
+      <button class="btn btn-sm btn-outline-info me-2" onclick="ir('maestra.html')">📘 Maestra</button>
+      <button class="btn btn-sm btn-outline-info me-2" onclick="ir('kardex.html')">📦 Kardex</button>
+      <button class="btn btn-sm btn-outline-info me-2" onclick="ir('pedidos.html')">🧾 Pedidos</button>
+      <button id="btnUsuarios" class="btn btn-sm btn-outline-warning me-2" onclick="ir('usuarios.html')">👥 Usuarios</button>
+    </div>
+
+    <div>
+      <span id="usuarioActivo" class="me-3 text-info fw-bold"></span>
+      <button class="btn btn-sm btn-danger" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // ✅ Mostrar usuario activo y ocultar botón de usuarios si no es admin
+  const usr = JSON.parse(localStorage.getItem("usuario"));
+  if (usr) {
+    document.getElementById("usuarioActivo").innerText = `${usr.nombre} (${usr.rol})`;
+    if (usr.rol !== "admin") {
+      document.getElementById("btnUsuarios").style.display = "none";
+    }
+  }
+
+  function ir(pagina) {
+    window.location.href = pagina;
+  }
+
+  function cerrarSesion() {
+    if (confirm("¿Deseas cerrar sesión?")) {
+      localStorage.removeItem("usuario");
+      window.location.href = "login.html";
+    }
+  }
+</script>
+
+<h1>📘 MAESTRA DE PRODUCTOS</h1>
+
+<script>
+  const API_BASE = `${location.origin}/api/maestra`;
+</script>
+
+<div class="toolbar">
+  <form id="formExcel" enctype="multipart/form-data" onsubmit="subirExcel(event)">
+    <input type="file" id="excelFile" name="file" accept=".xls,.xlsx" required />
+    <button type="submit">📤 Cargar Excel</button>
+  </form>
+  <button class="ghost" onclick="descargarPlantilla()">📄 Descargar plantilla</button>
+  <input id="searchInput" type="text" placeholder="Buscar producto..." />
+  <button class="ghost" onclick="buscar()">Buscar</button>
+  <button class="ghost" onclick="resetear()">Limpiar</button>
+</div>
+
+<p id="msg"></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>IdDescripción</th>
+      <th>Presentación Comercial</th>
+      <th>Tipo de Productos</th>
+      <th>Concentración</th>
+      <th>Unidad de Medida</th>
+      <th>Forma Farmacéutica</th>
+      <th>Principio Activo</th>
+      <th>Ref PLU</th>
+      <th>Imagen</th>
+      <th>Stock</th>
+    </tr>
+  </thead>
+  <tbody id="tabla"></tbody>
+</table>
+
+<script>
+let productos = [];
+
+function msg(t, tipo="ok"){ 
+  const el=document.getElementById("msg"); 
+  el.textContent=t; 
+  el.style.color= tipo==="ok" ? "#6ee7b7" : "#fca5a5"; 
+}
+
+async function subirExcel(e){
+  e.preventDefault();
+  const f = document.getElementById("excelFile").files[0];
+  if(!f) return msg("Selecciona un archivo Excel","error");
+  msg("⏳ Subiendo y procesando Excel...");
+  const fd = new FormData(); 
+  fd.append("file", f);
+  try{
+    const r = await fetch(`${API_BASE}/import-excel`, { method:"POST", body:fd });
+    const txt = await r.text(); let j; try{ j=JSON.parse(txt); }catch{}
+    if(!r.ok) return msg(j?.message || txt || "Error al importar","error");
+    msg(j?.message || "✅ Excel cargado correctamente");
+    await cargarProductos();
+  }catch(e){ msg("Error de red: "+e.message,"error"); }
+}
+
+function descargarPlantilla(){
+  const cabeceras = [
+    "id_descripcion","presentacion_comercial","tipo_productos","concentracion",
+    "unidad_medida","forma_farmaceutica","principio_activo","ref_plu","imagen","stock"
+  ];
+  const blob = new Blob([cabeceras.join(",")+"\n"], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "plantilla_maestra.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function cargarProductos(q=""){
+  msg("Cargando productos...");
+  const r = await fetch(`${API_BASE}/listar${q ? `?search=${encodeURIComponent(q)}` : ""}`);
+  const txt = await r.text(); let j; try{ j=JSON.parse(txt); }catch{}
+  if(!r.ok) return msg(j?.message || txt || "Error al listar productos","error");
+  productos=j;
+  renderTabla();
+  msg(`📦 ${productos.length} productos cargados`);
+}
+
+function renderTabla(){
+  const tbody=document.getElementById("tabla");
+  if(!productos.length){ 
+    tbody.innerHTML=`<tr><td colspan="11">Sin registros</td></tr>`; 
+    return; 
+  }
+
+  tbody.innerHTML = productos.map(p=>{
+    const img = p.imagen ? `<img class="thumb" src="${p.imagen}" alt="">` : "—";
+    return `
+      <tr>
+        <td>${p.id}</td>
+        <td>${p.id_descripcion||"—"}</td>
+        <td>${p.presentacion_comercial||"—"}</td>
+        <td>${p.tipo_productos||"—"}</td>
+        <td>${p.concentracion||"—"}</td>
+        <td>${p.unidad_medida||"—"}</td>
+        <td>${p.forma_farmaceutica||"—"}</td>
+        <td>${p.principio_activo||"—"}</td>
+        <td>${p.ref_plu||"—"}</td>
+        <td>${img}</td>
+        <td>${p.stock ?? 0}</td>
+      </tr>`;
+  }).join("");
+}
+
+function buscar(){
+  const q=document.getElementById("searchInput").value.trim();
+  cargarProductos(q);
+}
+function resetear(){
+  document.getElementById("searchInput").value="";
+  cargarProductos();
+}
+
+/* Inicial */
+cargarProductos();
+</script>
+</body>
+</html>

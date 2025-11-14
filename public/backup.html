@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Respaldo | MYT Inventario</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="backdrop">
+<header>
+  <h1>MYT – Copias de Seguridad</h1>
+  <div class="usuario-box">
+    <span id="usuarioActual"></span>
+    <button onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="kardex.html">Kardex</a>
+    <a href="maestra.html">Maestra</a>
+    <a href="auditoria.html">Auditoría</a>
+    <a href="usuarios.html">Usuarios</a>
+  </nav>
+</header>
+
+<main>
+  <h2>💾 Respaldo de Base de Datos</h2>
+
+  <section style="margin: 30px auto; width: 60%; background:#0d2845; padding:20px; border-radius:15px;">
+    <p>Desde aquí puedes generar una copia de seguridad completa de tu base de datos <b>inventario_myt</b>.</p>
+    <p>Se descargará un archivo con extensión <code>.sql</code> que contiene toda la estructura y los datos actuales.</p>
+
+    <button onclick="descargarBackup()" style="margin-top:15px;">⬇️ Generar y Descargar Respaldo</button>
+
+    <div id="status" style="margin-top:20px;color:#00ffaa;font-weight:bold;"></div>
+  </section>
+
+  <section style="margin-top:40px;">
+    <h3>ℹ️ Recomendación</h3>
+    <p>Guarda este archivo en un lugar seguro o en la nube.  
+    Puedes restaurarlo fácilmente desde phpMyAdmin o la consola de MariaDB con el comando:</p>
+    <pre>mysql -u root -p inventario_myt < backup_fecha.sql</pre>
+  </section>
+</main>
+
+<script src="js/proteccion.js"></script>
+<script>
+function descargarBackup() {
+  const status = document.getElementById("status");
+  status.textContent = "⏳ Generando respaldo... por favor espera unos segundos.";
+  fetch("/api/backup/export")
+    .then(response => {
+      if (!response.ok) throw new Error("Error en el respaldo");
+      return response.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `backup_inventario_${new Date().toISOString().split("T")[0]}.sql`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      status.textContent = "✅ Respaldo generado y descargado correctamente.";
+    })
+    .catch(err => {
+      console.error(err);
+      status.textContent = "❌ Error al generar respaldo.";
+    });
+}
+</script>
+</body>
+</html>

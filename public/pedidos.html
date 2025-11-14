@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Pedidos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <style>
+    body { background:#0b1b2b; color:white; }
+    .card { background:#142c44; border:1px solid #0ff3; border-radius:10px; }
+    table { background:#1d3858; color:white; }
+    th { background:#0b1b2b; color:#00b4ff; }
+    .btn-masivo { background:#198754; color:white; font-weight:bold; }
+    .btn-masivo:hover { background:#23a863; }
+    .btn-outline-info { border-color:#00b4ff; color:#00b4ff; }
+    .btn-outline-info:hover { background-color:#00b4ff; color:white; }
+    .text-warning { color:#ffc107 !important; font-weight:500; }
+    .badge-entregado { background:#28a745; }
+    .badge-pendiente { background:#ffc107; color:#000; }
+  </style>
+</head>
+<body class="p-4">
+  <nav class="navbar navbar-dark mb-4" style="background-color:#0b1b2b;">
+    <div class="container-fluid d-flex justify-content-between">
+      <button class="btn btn-outline-info btn-sm" onclick="ir('menu.html')">🏠 Menú</button>
+      <div>
+        <span id="usuarioActivo" class="text-info me-3"></span>
+        <button class="btn btn-danger btn-sm" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </div>
+  </nav>
+
+  <h3 class="text-center text-info mb-4">📦 GESTIÓN DE PEDIDOS</h3>
+
+  <!-- DESCARGAS -->
+  <div class="card p-3 mb-4">
+    <h6 class="text-info">📥 Descarga de plantillas</h6>
+    <a href="/formatos/plantilla_pedidos.xlsx" class="btn btn-outline-info btn-sm me-2">📄 Plantilla Pedidos</a>
+    <a href="/formatos/plantilla_productos.xlsx" class="btn btn-outline-info btn-sm">📦 Plantilla Productos</a>
+  </div>
+
+  <!-- CARGUE DE CATÁLOGO -->
+  <div class="card p-3 mb-4">
+    <h6 class="text-info">📂 Cargar catálogo de productos</h6>
+    <div class="d-flex gap-2">
+      <input id="inpCatalogo" type="file" accept=".xlsx,.xls" class="form-control" style="max-width:480px;">
+      <button id="btnCargarCatalogo" class="btn btn-warning">⬆️ Cargar catálogo</button>
+    </div>
+    <small class="text-muted">Debe tener una columna llamada <b>producto</b> o <b>nombre</b>.</small>
+  </div>
+
+  <!-- CARGUE MASIVO DE PEDIDOS -->
+  <div class="card p-3 mb-4">
+    <h6 class="text-info">🧮 Cargar pedidos masivos desde Excel</h6>
+    <div class="d-flex gap-2 align-items-center">
+      <input id="inpPedidosMasivo" type="file" accept=".xlsx,.xls" class="form-control" style="max-width:480px;">
+      <button id="btnCargarMasivo" class="btn btn-masivo">📤 Cargar pedidos</button>
+    </div>
+    <small class="text-muted">El archivo debe usar la plantilla <b>plantilla_pedidos.xlsx</b>.</small>
+  </div>
+
+  <!-- FORMULARIO DE PEDIDOS -->
+  <div class="card p-3 mb-4">
+    <h6 class="text-info">🧾 Registrar Pedido</h6>
+    <div class="row g-2">
+      <div class="col-md-3">
+        <select id="municipio" class="form-select">
+          <option value="">-- Municipio --</option>
+          <option>ARAUCA</option>
+          <option>TAME</option>
+          <option>SARAVENA</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select id="sede" class="form-select">
+          <option value="">-- Sede --</option>
+          <option>SEDE PRINCIPAL</option>
+          <option>FARMACIA PUNTO 16</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select id="proceso" class="form-select">
+          <option value="">-- Proceso --</option>
+          <option>GESTIÓN DE LA CALIDAD</option>
+          <option>GESTIÓN FINANCIERA</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select id="area" class="form-select">
+          <option value="">-- Área --</option>
+          <option>CALIDAD</option>
+          <option>ADMINISTRACIÓN</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <input list="listaProductos" id="producto" class="form-control" placeholder="Escriba producto...">
+        <datalist id="listaProductos"></datalist>
+      </div>
+
+      <div class="col-md-2">
+        <select id="presentacion" class="form-select">
+          <option>UNIDAD</option>
+          <option>CAJA</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <input id="cantidad" type="number" min="1" class="form-control" placeholder="Cantidad">
+      </div>
+
+      <div class="col-md-4">
+        <input id="observacion" class="form-control" placeholder="Observación">
+      </div>
+
+      <div class="col-md-12 text-end mt-2">
+        <button class="btn btn-primary btn-sm" onclick="guardarPedido()">💾 Guardar pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA DE PEDIDOS -->
+  <div class="card p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="text-info m-0">📋 Mis pedidos</h6>
+      <button class="btn btn-danger btn-sm" onclick="eliminarTodos()">🗑️ Eliminar todos mis pedidos</button>
+    </div>
+
+    <table class="table table-sm table-bordered mt-2">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Municipio</th>
+          <th>Sede</th>
+          <th>Proceso</th>
+          <th>Área</th>
+          <th>Producto</th>
+          <th>Presentación</th>
+          <th>Cantidad</th>
+          <th>Observación</th>
+          <th>Fecha pedido</th>
+          <th>Despacho</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyPedidos"></tbody>
+    </table>
+  </div>
+
+<script>
+const API = "/api/pedidos";
+const usuario = JSON.parse(localStorage.getItem("usuario")) || { correo:"invitado@demo.com" };
+
+if (!usuario || !usuario.correo) {
+  window.location.href = "login.html";
+}
+
+document.getElementById("usuarioActivo").textContent =
+  `${usuario.nombre || "Invitado"} (${usuario.correo})`;
+
+// 📦 Cargar catálogo desde BD
+async function cargarCatalogo() {
+  const res = await fetch(`${API}/catalogo`);
+  const data = await res.json();
+  const lista = document.getElementById("listaProductos");
+  lista.innerHTML = data.map(d => `<option value="${d.producto}">`).join("");
+}
+cargarCatalogo();
+
+// 📤 Subir catálogo (Excel)
+document.getElementById('btnCargarCatalogo').addEventListener('click', async () => {
+  const file = document.getElementById('inpCatalogo').files[0];
+  if (!file) return alert("Selecciona un archivo Excel.");
+  const fd = new FormData();
+  fd.append('archivo', file);
+  const r = await fetch(`${API}/catalogo/import`, { method: 'POST', body: fd });
+  const j = await r.json();
+  alert(j.message);
+  cargarCatalogo();
+});
+
+// 📥 Cargue masivo de pedidos
+document.getElementById('btnCargarMasivo').addEventListener('click', async () => {
+  const file = document.getElementById('inpPedidosMasivo').files[0];
+  if (!file) return alert("Selecciona un archivo Excel para subir pedidos.");
+  const fd = new FormData();
+  fd.append("archivo", file);
+  fd.append("usuario", usuario.correo);
+
+  const r = await fetch(`${API}/import/excel`, { method: "POST", body: fd });
+  const j = await r.json();
+
+  if (r.ok) {
+    alert("✅ " + j.message);
+    cargarPedidos();
+  } else {
+    alert("❌ " + (j.message || "Error al cargar pedidos"));
+  }
+});
+
+// 📋 Cargar pedidos del usuario (con info de despacho)
+async function cargarPedidos() {
+  const r = await fetch(`${API}?usuario=${encodeURIComponent(usuario.correo)}`);
+  const d = await r.json();
+  const tbody = document.getElementById("tbodyPedidos");
+
+  tbody.innerHTML = d.map((x,i) => {
+    const fechaPed = x.fecha_registro ? new Date(x.fecha_registro).toLocaleDateString() : "";
+    const fechaEnt = x.fecha_despacho ? new Date(x.fecha_despacho).toLocaleDateString() : null;
+    const obs = x.obs_despacho || x.observacion || "";
+    let despachoHtml = "";
+
+    if (fechaEnt) {
+      despachoHtml = `<span class="badge badge-entregado">Entregado ${fechaEnt}</span>`;
+      if (x.pdf_ruta) {
+        despachoHtml += `<br><a href="${x.pdf_ruta}" target="_blank" class="btn btn-sm btn-outline-info mt-1">📄 Ver PDF</a>`;
+      }
+    } else {
+      despachoHtml = `<span class="badge badge-pendiente">Pendiente</span>`;
+    }
+
+    return `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.municipio || ""}</td>
+        <td>${x.sede || ""}</td>
+        <td>${x.proceso || ""}</td>
+        <td>${x.area || ""}</td>
+        <td>${x.producto || ""}</td>
+        <td>${x.presentacion || ""}</td>
+        <td>${x.cantidad}</td>
+        <td>${obs}</td>
+        <td>${fechaPed}</td>
+        <td>${despachoHtml}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="eliminar(${x.id})">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+cargarPedidos();
+
+// 💾 Guardar pedido individual
+async function guardarPedido(){
+  if(!producto.value || !cantidad.value || Number(cantidad.value)<=0){
+    alert("⚠️ Ingresa un producto y una cantidad válida.");
+    return;
+  }
+  const p = {
+    municipio: municipio.value,
+    sede: sede.value,
+    proceso: proceso.value,
+    area: area.value,
+    producto: producto.value,
+    presentacion: presentacion.value,
+    cantidad: cantidad.value,
+    observacion: observacion.value,
+    usuario: usuario.correo
+  };
+
+  const r = await fetch(`${API}/import`, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify([p])
+  });
+  const j = await r.json();
+  alert(j.message);
+  cargarPedidos();
+}
+
+// 🗑️ Eliminar pedido individual
+async function eliminar(id){
+  if(!confirm("¿Eliminar pedido?"))return;
+  const r = await fetch(`${API}/${id}`,{method:"DELETE"});
+  const j = await r.json();
+  alert(j.message);
+  cargarPedidos();
+}
+
+// 🧹 Eliminar todos los pedidos del usuario
+async function eliminarTodos(){
+  if(!confirm("⚠️ ¿Seguro que deseas eliminar TODOS tus pedidos?"))return;
+  const r = await fetch(`${API}/usuario/${encodeURIComponent(usuario.correo)}`,{method:"DELETE"});
+  const j = await r.json();
+  alert(j.message);
+  cargarPedidos();
+}
+
+function ir(p){location.href=p;}
+function cerrarSesion(){localStorage.clear();location.href="login.html";}
+</script>
+</body>
+</html>
