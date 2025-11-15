@@ -1,7 +1,24 @@
 services:
   - type: web
-    name: inventario-myt
+    name: inventario-myt-backend
     env: node
     buildCommand: "npm install"
-    startCommand: "npm start"
-    autoDeploy: true
+    startCommand: "node server.js"
+    envVars:
+      - key: DB_HOST
+        fromService: mysql-db
+      - key: DB_USER
+        fromService: mysql-db
+      - key: DB_PASS
+        fromService: mysql-db
+      - key: DB_NAME
+        fromService: mysql-db
+      - key: DB_PORT
+        fromService: mysql-db
+      - key: PORT
+        value: 4000
+
+databases:
+  - name: mysql-db
+    plan: free
+    engine: mysql
