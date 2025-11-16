@@ -1,25 +1,18 @@
 {
-  "name": "inventario-myt-backend",
+  "name": "inventario-mytl-backend",
   "version": "1.0.0",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-<<<<<<< HEAD
-    "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "mysql2": "^3.9.4",
-    "multer": "^1.4.5",
-    "pdfkit": "^0.13.0"
-=======
     "mysql2": "^3.3.0",
     "dotenv": "^16.3.1",
     "xlsx": "^0.18.5",
     "pdfkit": "^0.13.0",
     "fs-extra": "^11.1.1"
->>>>>>> 7ae9b534336f25828094969cfb755c515f5d7382
   }
 }
