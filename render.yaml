@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 services:
   - type: web
     name: inventario-myt
@@ -5,3 +6,29 @@ services:
     buildCommand: "npm install"
     startCommand: "npm start"
     autoDeploy: true
+=======
+services:
+  - type: web
+    name: inventario-myt-backend
+    env: node
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    envVars:
+      - key: DB_HOST
+        fromService: mysql-db
+      - key: DB_USER
+        fromService: mysql-db
+      - key: DB_PASS
+        fromService: mysql-db
+      - key: DB_NAME
+        fromService: mysql-db
+      - key: DB_PORT
+        fromService: mysql-db
+      - key: PORT
+        value: 4000
+
+databases:
+  - name: mysql-db
+    plan: free
+    engine: mysql
+>>>>>>> 7ae9b534336f25828094969cfb755c515f5d7382
