@@ -5,17 +5,17 @@ import mysql from "mysql2";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import dotenv from "dotenv";
 
-// Si quieres usar variables en local descomenta:
-// import dotenv from "dotenv";
-// dotenv.config();
+// Cargar variables de entorno (.env)
+dotenv.config();
 
 // App express
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Puerto: Railway usa process.env.PORT
+// Puerto Clever Cloud usa process.env.PORT
 const PORT = process.env.PORT || 4000;
 
 // Resolver rutas
@@ -23,23 +23,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ===============================
-// 🔥 CONEXIÓN MYSQL (Railway / Local)
+// 🔥 CONEXIÓN MYSQL (Clever Cloud / Local)
 // ===============================
 export const db = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "myt2025",
-  database: process.env.DB_NAME || "inventario_myt",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
 });
 
-// Test
+// Test conexión
 db.getConnection((err, conn) => {
-  if (err) console.error("❌ Error MySQL:", err);
-  else {
-    console.log("✅ Conectado MySQL OK");
+  if (err) {
+    console.error("❌ Error conectando a MySQL:", err);
+  } else {
+    console.log("✅ Conectado a MySQL (Clever Cloud)");
     conn.release();
   }
 });
@@ -53,7 +54,6 @@ import usuariosRoutes from "./routes/usuarios.js";
 import pedidosRoutes from "./routes/pedidos.js";
 import despachoRoutes from "./routes/despacho.js";
 
-// Prefijos API
 app.use("/api/maestra", maestraRoutes);
 app.use("/api/kardex", kardexRoutes);
 app.use("/api/usuarios", usuariosRoutes);
@@ -66,10 +66,8 @@ app.use("/api/despacho", despachoRoutes);
 const publicPath = path.join(__dirname, "public");
 app.use(express.static(publicPath));
 
-// Carpeta descargas Excel
 app.use("/formatos", express.static(path.join(publicPath, "formatos")));
 
-// Carpeta de PDFs
 const pdfDir = path.join(process.cwd(), "despachos_pdfs");
 if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
 app.use("/despachos_pdfs", express.static(pdfDir));
@@ -94,5 +92,5 @@ app.get("/despacho.html", (_, res) => sendHtml("despacho.html", res));
 // 🔥 INICIAR SERVER
 // ===============================
 app.listen(PORT, () => {
-  console.log("🚀 Servidor en puerto", PORT);
+  console.log("🚀 Servidor corriendo en puerto", PORT);
 });
